@@ -52,6 +52,38 @@ namespace Sales.WEB.Repository
             var respuestaString = await httpResponse.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(respuestaString, jsonSerializerOptions)!;
         }
+
+        public async Task<HttpResponseMessages<object>> Put<T>(string url, T model)
+        {
+            var messageJSON = JsonSerializer.Serialize(model);
+            var messageContent = new StringContent(messageJSON, Encoding.UTF8, "application/json");
+            var responseHttp = await _httpClient.PutAsync(url, messageContent);
+            return new HttpResponseMessages<object>(null, !responseHttp.IsSuccessStatusCode, responseHttp);
+
+        }
+
+        public async Task<HttpResponseMessages<object>> Delete(string url)
+        {
+            var responseHTTP = await _httpClient.DeleteAsync(url);
+            return new HttpResponseMessages<object>(null, !responseHTTP.IsSuccessStatusCode, responseHTTP);
+
+        }
+
+        public async Task<HttpResponseMessages<TResponse>> Put<T, TResponse>(string url, T model)
+        {
+
+            var messageJSON = JsonSerializer.Serialize(model);
+            var messageContent = new StringContent(messageJSON, Encoding.UTF8, "application/json");
+            var responseHttp = await _httpClient.PutAsync(url, messageContent);
+            if (responseHttp.IsSuccessStatusCode)
+            {
+                var response = await UnserializeAnswer<TResponse>(responseHttp, _jsonDefaultOptions);
+                return new HttpResponseMessages<TResponse>(response, false, responseHttp);
+            }
+
+            return new HttpResponseMessages<TResponse>(default, !responseHttp.IsSuccessStatusCode, responseHttp);
+
+        }
     }
 
 }
