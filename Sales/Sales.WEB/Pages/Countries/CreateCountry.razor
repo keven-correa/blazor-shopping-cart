@@ -1,7 +1,8 @@
 ﻿@page "/countries/create"
 @inject IRepository repository
 @inject NavigationManager navigationManager
-@inject SweetAlertService Swal
+@inject SweetAlertService sweetAlertService
+@inject IJSRuntime js;
 
 <h3>Crear País</h3>
 
@@ -17,16 +18,17 @@
         if (httpResponse.Error)
         {
             var message = await httpResponse.GetErrorMessageAsync();
-            await Swal.FireAsync("Error", message);
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Warning);
             return;
         }
 
-        countryForm!.FormPostSuccessfully = true;
+        countryForm!.FormPostedSuccessfully = true;
         navigationManager.NavigateTo("/countries");
     }
 
     private void Return()
     {
+        countryForm!.FormPostedSuccessfully = true;
         navigationManager.NavigateTo("/countries");
     }
 }

@@ -34,14 +34,14 @@ namespace Sales.WEB.Repository
             }
             else if (statusCode == HttpStatusCode.Unauthorized)
             {
-                return "Tienes que logearte para hacer esta operación";
+                return await HttpResponseMessage.Content.ReadAsStringAsync();
             }
             else if (statusCode == HttpStatusCode.Forbidden)
             {
-                return "No tienes permisos para hacer esta operación";
+                return await HttpResponseMessage.Content.ReadAsStringAsync();
             }
 
-            return "Ha ocurrido un error inesperado";
+            return await HttpResponseMessage.Content.ReadAsStringAsync();
         }
     }
 }
