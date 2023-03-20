@@ -18,11 +18,11 @@
         if (httpResponse.Error)
         {
             var message = await httpResponse.GetErrorMessageAsync();
-<<<<<<< HEAD
+
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Warning);
-=======
+
             await sweetAlertService.FireAsync("Error", message);
->>>>>>> eeccff5e7fc996ef67f290fbe1979a62035661b8
+
             return;
         }
 
