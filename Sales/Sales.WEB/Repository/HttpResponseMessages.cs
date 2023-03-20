@@ -40,6 +40,10 @@ namespace Sales.WEB.Repository
             {
                 return await HttpResponseMessage.Content.ReadAsStringAsync();
             }
+            else if(statusCode == HttpStatusCode.Conflict)
+            {
+                return "Ya existe un recurso con este nombre";
+            }
 
             return await HttpResponseMessage.Content.ReadAsStringAsync();
         }
