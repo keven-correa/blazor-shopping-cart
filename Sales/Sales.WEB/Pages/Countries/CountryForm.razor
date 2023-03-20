@@ -1,23 +1,20 @@
-﻿@inject SweetAlertService Swal
+﻿@inject SweetAlertService sweetAlertService
 
 <NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation" />
 
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator/>
+    <DataAnnotationsValidator />
     <div class="mb-3">
         <label>País:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Country.Name"/>
-            <ValidationMessage For="@(() => Country.Name)"/>
+            <InputText class="form-control" @bind-Value="@Country.Name" />
+            <ValidationMessage For="@(() => Country.Name)" />
         </div>
     </div>
-    <button class="btn btn-primary" type="submit">
-        Guardar
-    </button>
-    <button class="btn btn-success" @onclick="ReturnAction">
-        Regresar
-    </button>
+    <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+    <button class="btn btn-success" @onclick="ReturnAction">Regresar</button>
 </EditForm>
+
 @code {
     private EditContext editContext = null!;
 
@@ -33,7 +30,7 @@
     [EditorRequired]
     public EventCallback ReturnAction { get; set; }
 
-    public bool FormPostSuccessfully { get; set; }
+    public bool FormPostedSuccessfully { get; set; }
 
     protected override void OnInitialized()
     {
@@ -42,20 +39,20 @@
 
     private async Task OnBeforeInternalNavigation(LocationChangingContext context)
     {
-        var formWasModified = editContext.IsModified();
-        if (!formWasModified)
+        var formWasMofied = editContext.IsModified();
+        if (!formWasMofied || FormPostedSuccessfully)
         {
             return;
         }
 
-        var result = await Swal.FireAsync(new SweetAlertOptions
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
-                Title = "Confirmarción",
-                Text = "Desea abandonar la página y perder los cambios?",
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
                 Icon = SweetAlertIcon.Warning,
                 ShowCancelButton = true,
                 CancelButtonText = "No",
-                ConfirmButtonText = "Sí"
+                ConfirmButtonText = "Si"
             });
 
         var confirm = !string.IsNullOrEmpty(result.Value);
@@ -63,6 +60,7 @@
         {
             return;
         }
+
         context.PreventNavigation();
     }
 }

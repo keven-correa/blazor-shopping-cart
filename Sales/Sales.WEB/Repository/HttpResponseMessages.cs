@@ -40,6 +40,10 @@ namespace Sales.WEB.Repository
             {
                 return "No tienes permisos para hacer esta operación";
             }
+            else if(statusCode == HttpStatusCode.Conflict)
+            {
+                return "Ya existe un recurso con este nombre";
+            }
 
             return "Ha ocurrido un error inesperado";
         }

@@ -20,6 +20,15 @@ namespace Sales.API.Controllers
         [HttpPost]
         public async Task<ActionResult> PostAsync(Country country)
         {
+            var countryExists =  await _context.Countries.Where(c => c.Name == country.Name).FirstOrDefaultAsync();
+            if(countryExists != null)
+            {
+                return Conflict($"Ya existe un pais con el nombre {country.Name}");
+            }
+            //if (countryExists != null)
+            //{
+            //    return Conflict("Ya existe un pais con ese nombre");
+            
             _context.Add(country);
             await _context.SaveChangesAsync();
             return Ok(country);
