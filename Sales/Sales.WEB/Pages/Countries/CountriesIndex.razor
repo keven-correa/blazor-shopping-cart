@@ -30,7 +30,8 @@
                             @country.StateNumber
                         </td>
                         <td>
-                            <a class="btn btn-warning" data-toggle="tooltip" data-placement="left" title="Editar país" href="/countries/edit/@country.Id"><i class="oi oi-pencil" /></a>
+                            <a class="btn btn-warning" data-toggle="tooltip" data-placement="left" title="Información" href="/countries/details/@country.Id"><i class="oi oi-info" /></a>
+                            <a class="btn btn-info" data-toggle="tooltip" data-placement="left" title="Editar país" href="/countries/edit/@country.Id"><i class="oi oi-pencil" /></a>
                             <button class="btn btn-danger" data-toggle="tooltip" data-placement="right" title="Eliminar país" @onclick="@(() => DeleteAsync(country.Id))"><i class="oi oi-trash" /></button>
                         </td>
 
