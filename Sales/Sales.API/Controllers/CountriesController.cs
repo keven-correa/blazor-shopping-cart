@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
 using Sales.Shared.Entities;
@@ -20,7 +19,6 @@ namespace Sales.API.Controllers
         [HttpPost]
         public async Task<ActionResult> PostAsync(Country country)
         {
-
             try
             {
                 _context.Add(country);
@@ -33,7 +31,7 @@ namespace Sales.API.Controllers
                     ? Conflict($"Ya existe un país con el nombre: {country.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -43,9 +41,19 @@ namespace Sales.API.Controllers
         public async Task<ActionResult> GetAll()
         {
             return Ok(await _context.Countries
-                                    //.OrderBy(i => i.Id)
-                                    .AsNoTracking()
-                                    .ToListAsync());
+                .Include(c => c.States)
+                .AsNoTracking()
+                .ToListAsync());
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<ActionResult> GetAllCountries()
+        {
+            return Ok(await _context.Countries
+                .Include(c => c.States!)
+                .ThenInclude(s => s.Cities)
+                .AsNoTracking()
+                .ToListAsync());
         }
 
         [HttpGet("{id:int}")]
