@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
 using Sales.Shared.Entities;
+using Sales.Shared.Mappers.Countries;
 
 namespace Sales.API.Controllers
 {
@@ -17,10 +18,12 @@ namespace Sales.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Country country)
+        public async Task<ActionResult> PostAsync([FromBody]CreateCountryDto countryDto)
         {
             try
             {
+                var country = new Country { Name= countryDto.Name };
+
                 _context.Add(country);
                 await _context.SaveChangesAsync();
                 return Ok(country);
@@ -28,7 +31,7 @@ namespace Sales.API.Controllers
             catch (DbUpdateException dbEx)
             {
                 return dbEx.InnerException!.Message.Contains("duplicate")
-                    ? Conflict($"Ya existe un país con el nombre: {country.Name}")
+                    ? Conflict($"Ya existe un país con el nombre: {countryDto.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
             catch (Exception ex)
@@ -72,11 +75,16 @@ namespace Sales.API.Controllers
         }
 
 
-        [HttpPut]
-        public async Task<ActionResult> PutAsync(Country country)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutAsync(int id, [FromBody] UpdateCountryDto countryDto)
         {
             try
             {
+                var country = new Country
+                {
+                    Name = countryDto.Name,
+                    Id = id
+                };
                 _context.Update(country);
                 await _context.SaveChangesAsync();
                 return Ok(country);
@@ -84,7 +92,7 @@ namespace Sales.API.Controllers
             catch (DbUpdateException dbEx)
             {
                 return dbEx.InnerException!.Message.Contains("duplicate")
-                    ? Conflict($"Ya existe un país con el nombre: {country.Name}")
+                    ? Conflict($"Ya existe un país con el nombre: {countryDto.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
             catch (Exception ex)

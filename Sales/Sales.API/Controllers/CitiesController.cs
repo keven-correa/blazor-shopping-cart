@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
 using Sales.Shared.Entities;
+using Sales.Shared.Mappers.Cities;
 
 namespace Sales.API.Controllers
 {
@@ -17,10 +18,11 @@ namespace Sales.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(City city)
+        public async Task<ActionResult> PostAsync([FromBody] CreateCityDto cityDto)
         {
             try
             {
+                var city = new City() { Name = cityDto.Name, StateId = cityDto.StateId };
                 _context.Add(city);
                 await _context.SaveChangesAsync();
                 return Ok(city);
@@ -28,7 +30,7 @@ namespace Sales.API.Controllers
             catch (DbUpdateException dbEx)
             {
                 return dbEx.InnerException!.Message.Contains("duplicate")
-                    ? Conflict($"Ya existe una ciudad con el nombre: {city.Name}")
+                    ? Conflict($"Ya existe una ciudad con el nombre: {cityDto.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
             catch (Exception ex)
@@ -43,7 +45,7 @@ namespace Sales.API.Controllers
             return Ok(await _context.Cities.AsNoTracking().ToListAsync());
         }
 
-       
+
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
@@ -58,11 +60,12 @@ namespace Sales.API.Controllers
         }
 
 
-        [HttpPut]
-        public async Task<ActionResult> PutAsync(City city)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutAsync(int id, [FromBody] UpdateCityDto cityDto)
         {
             try
             {
+                var city = new City() { Id = id, Name = cityDto.Name, StateId = cityDto.StateId };
                 _context.Update(city);
                 await _context.SaveChangesAsync();
                 return Ok(city);
@@ -70,7 +73,7 @@ namespace Sales.API.Controllers
             catch (DbUpdateException dbEx)
             {
                 return dbEx.InnerException!.Message.Contains("duplicate")
-                    ? Conflict($"Ya existe una ciudad con el nombre: {city.Name}")
+                    ? Conflict($"Ya existe una ciudad con el nombre: {cityDto.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
             catch (Exception ex)

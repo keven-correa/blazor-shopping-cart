@@ -1,4 +1,4 @@
-﻿@page "/states/create/{CountryId:int}"
+﻿@page "/cities/create/{StateId:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
@@ -6,19 +6,19 @@
 
 <h3>Crear Estado/Provincia</h3>
 
-<StateForm @ref="stateForm" State="state" OnValidSubmit="Create" ReturnAction="Return" />
+<CityForm @ref="cityForm" City="city" OnValidSubmit="CreateAsync" ReturnAction="Return" />
 
 @code {
-    private State state = new();
-    private StateForm? stateForm;
+    private City city = new();
+    private CityForm? cityForm;
 
     [Parameter]
-    public int CountryId { get; set; }
+    public int StateId { get; set; }
 
-    private async Task Create()
+    private async Task CreateAsync()
     {
-        state.CountryId = CountryId;
-        var httpResponse = await repository.Post("/api/states", state);
+        city.StateId = StateId;
+        var httpResponse = await repository.Post("/api/cities", city);
         if (httpResponse.Error)
         {
             var message = await httpResponse.GetErrorMessageAsync();
@@ -35,7 +35,7 @@
 
     private void Return()
     {
-        stateForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo($"/countries/details/{CountryId}");
+        cityForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/states/details/{StateId}");
     }
 }

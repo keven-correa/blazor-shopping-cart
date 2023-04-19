@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Data;
 using Sales.Shared.Entities;
+using Sales.Shared.Mappers.States;
 
 namespace Sales.API.Controllers
 {
@@ -18,18 +18,20 @@ namespace Sales.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(State state)
+        public async Task<ActionResult> PostAsync([FromBody]CreateStateDto stateDto)
         {
             try
             {
+                var state = new State() { Name = stateDto.Name, CountryId = stateDto.CountryId };
                 _context.Add(state);
                 await _context.SaveChangesAsync();
+
                 return Ok(state);
             }
             catch (DbUpdateException dbEx)
             {
                 return dbEx.InnerException!.Message.Contains("duplicate")
-                    ? Conflict($"Ya existe un estado con el nombre: {state.Name}")
+                    ? Conflict($"Ya existe un estado con el nombre: {stateDto.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
             catch (Exception ex)
@@ -47,7 +49,7 @@ namespace Sales.API.Controllers
                 .ToListAsync());
         }
 
-       
+
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
@@ -59,16 +61,16 @@ namespace Sales.API.Controllers
             {
                 return NotFound();
             }
-
             return Ok(state);
         }
 
 
-        [HttpPut]
-        public async Task<ActionResult> PutAsync(State state)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutAsync(int id, [FromBody]UpdateStateDto stateDto)
         {
             try
             {
+                var state = new State() { Name = stateDto.Name, Id = id, CountryId = stateDto.CountryId };
                 _context.Update(state);
                 await _context.SaveChangesAsync();
                 return Ok(state);
@@ -76,7 +78,7 @@ namespace Sales.API.Controllers
             catch (DbUpdateException dbEx)
             {
                 return dbEx.InnerException!.Message.Contains("duplicate")
-                    ? Conflict($"Ya existe un estado con el nombre: {state.Name}")
+                    ? Conflict($"Ya existe un estado con el nombre: {stateDto.Name}")
                     : (ActionResult)Conflict(dbEx.Message);
             }
             catch (Exception ex)

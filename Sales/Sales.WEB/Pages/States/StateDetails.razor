@@ -1,0 +1,113 @@
+﻿@page "/states/details/{StateId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Detalles del estado</h3>
+
+@if (state is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h3>@state.Name</h3>
+    <div class="mb-2">
+        <a class="btn btn-primary" data-toggle="tooltip" data-placement="right" title="Agregar estado" href="/cities/create/@StateId">Nueva ciudad <i class="oi oi-plus" /></a>
+        <a class="btn btn-success" data-toggle="tooltip" data-placement="right" title="Regresar" href="/states/details/@state.CountryId">Regresar <i class="oi oi-list" /></a>
+    </div>
+
+    <GenericList MyList="cities">
+        <Loading>
+            <p>Cargando...</p>
+        </Loading>
+        <Body>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Ciudad</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var city in state.Cities!.ToList())
+                    {
+                        <tr>
+                            <td>
+                                @city.Name
+                            </td>
+                            <td>
+                                <a class="btn btn-info" data-toggle="tooltip" data-placement="left" title="Editar país" href="/cities/edit/@city.Id"><i class="oi oi-pencil" /></a>
+                                <button class="btn btn-danger" data-toggle="tooltip" data-placement="right" title="Eliminar país" @onclick="@(() => DeleteAsync(city.Id))"><i class="oi oi-trash" /></button>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </Body>
+    </GenericList>
+
+}
+
+@code {
+    private State? state;
+    private List<City>? cities;
+
+    [Parameter]
+    public int StateId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var res = await repository.Get<State>($"/api/states/{StateId}");
+        if (res.Error)
+        {
+            if (res.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/countries");
+                return;
+            }
+            var message = await res.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        state = res.Response;
+        cities = state!.Cities!.ToList();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmar",
+                Text = "Esta seguro de eliminar este estado?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Si"
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+        if (confirm)
+        {
+            return;
+        }
+        var responseHttp = await repository.Delete($"/api/cities/{id}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+        }
+
+        await LoadAsync();
+    }
+}
