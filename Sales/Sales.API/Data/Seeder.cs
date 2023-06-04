@@ -22,6 +22,7 @@ namespace Sales.API.Data
             await CheckRolesAsync();
 
             await CheckUserAsync("1010", "Juan", "Zuluaga", "zulu@yopmail.com", "322 311 4620", "Calle Luna Calle Sol", UserType.Admin);
+            await CheckUserAsync("1111", "Keven", "Turvi", "keven@gmail.com", "111 222 1111", "Calle de un sitio", UserType.User);
         }
 
         private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, UserType userType)
