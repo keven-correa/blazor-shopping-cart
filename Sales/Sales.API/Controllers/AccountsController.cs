@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -18,11 +19,13 @@ namespace Sales.API.Controllers
     {
         private readonly IUserHelper _userHelper;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountsController(IUserHelper userHelper, IConfiguration configuration)
+        public AccountsController(IUserHelper userHelper, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         {
             _userHelper = userHelper;
             _configuration = configuration;
+            _roleManager = roleManager;
         }
         [HttpPost("CreateUser")]
         public async Task<ActionResult> CreateUser([FromBody] UserDto model)
@@ -51,6 +54,37 @@ namespace Sales.API.Controllers
             return BadRequest("Email o contraseña incorrectos.");
         }
 
+        [HttpGet("get-roles")]
+        public async Task<ActionResult<IReadOnlyList<IdentityRole>>> GetRoles()
+        {
+            return Ok(await _userHelper.GetRolesList());
+        }
+
+        [HttpPost("create-role")]
+        public async Task<ActionResult> CreateRole(string roleName)
+        {
+            if (!string.IsNullOrEmpty(roleName))
+            {
+                var roleExists = await _userHelper.FindRoleByName(roleName);
+                if (!roleExists)
+                {
+
+                    var role = new IdentityRole(roleName);
+                    var result = await _roleManager.CreateAsync(role);
+
+                    if (result.Succeeded)
+                    {
+                        return Ok();
+                    }
+                    return BadRequest(result.Errors);
+                }
+                else
+                {
+                    return BadRequest("Role exists");
+                }
+            }
+            return BadRequest("Role name is required");
+        }
 
         private TokenDto BuildToken(User user)
         {

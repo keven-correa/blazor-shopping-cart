@@ -20,6 +20,8 @@ namespace Sales.API.Helpers.Implementations
             _roleManager = roleManager;
             _signInManager = signInManager;
         }
+
+
         public async Task<IdentityResult> AddUserAsync(User user, string password)
         {
             return await _userManager.CreateAsync(user, password);
@@ -42,6 +44,16 @@ namespace Sales.API.Helpers.Implementations
                 });
             }
 
+        }
+
+        public async Task<bool> FindRoleByName(string roleName)
+        {
+            return await _roleManager.RoleExistsAsync(roleName);
+        }
+
+        public async Task<IReadOnlyList<IdentityRole>> GetRolesList()
+        {
+            return await _roleManager.Roles.ToListAsync();
         }
 
         public async Task<User> GetUserAsync(string email)
